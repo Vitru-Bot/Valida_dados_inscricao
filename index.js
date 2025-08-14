@@ -28,7 +28,27 @@ function formatarData(data) {
 function validarCPF(cpf) {
   if (!cpf) return false;
   const apenasDigitos = cpf.replace(/\D/g, '');
-  return /^\d{11}$/.test(apenasDigitos);
+  
+  // Tem que ter 11 dígitos e não ser todos iguais
+  if (!/^\d{11}$/.test(apenasDigitos) || /^(\d)\1+$/.test(apenasDigitos)) return false;
+
+  let soma = 0;
+  for (let i = 0; i < 9; i++) {
+    soma += parseInt(apenasDigitos.charAt(i)) * (10 - i);
+  }
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(apenasDigitos.charAt(9))) return false;
+
+  soma = 0;
+  for (let i = 0; i < 10; i++) {
+    soma += parseInt(apenasDigitos.charAt(i)) * (11 - i);
+  }
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(apenasDigitos.charAt(10))) return false;
+
+  return true;
 }
 
 function validarEmail(email) {
@@ -58,10 +78,10 @@ function extrairNumero(texto) {
 }
 
 function extrairDatas(texto) {
-  const regex = /(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{8})/g;
-  const matches = texto.match(regex);
-  if (!matches) return null;
-  return formatarData(matches[0].replace(/[\/\-]/g, ''));
+  // Aceita apenas datas válidas no formato DD/MM/AAAA ou 8 dígitos exatos
+  const regex = /^(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{8})$/;
+  if (!regex.test(texto)) return null;
+  return formatarData(texto.replace(/[\/\-]/g, ''));
 }
 
 // Endpoint principal
